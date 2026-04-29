@@ -1,0 +1,669 @@
+{
+  "name": "Weekly slack report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "7b5df943-464b-41b3-83ec-67089a1d9b9b",
+      "name": "Weekly Report Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1136,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "history",
+        "channelId": {
+          "__rl": true,
+          "value": "C076J8RCBK4",
+          "mode": "list",
+          "cachedResultName": "daily-standup"
+        },
+        "returnAll": true,
+        "filters": {
+          "latest": "={{ $now }}",
+          "oldest": "={{ $now.minus({ days: 5}) }}"
+        }
+      },
+      "id": "2874f426-3587-4806-aa6d-e4826e0b5f8d",
+      "name": "Fetch Weekly Messages",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -688,
+        288
+      ],
+      "webhookId": "87c51e02-35dc-4185-b2c1-02cc50a2dce4",
+      "credentials": {
+        "slackApi": {
+          "id": "s4HKv8JbSd8O2TKx",
+          "name": "Slack Api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "reportType",
+              "value": "weekly",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "fcdbd7c4-ab1a-40e9-a579-0be1e51cc967",
+      "name": "Mark as Weekly Report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -912,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4e633035-0966-4753-a934-6870b04ac342",
+              "leftValue": "={{ $json.reply_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -464,
+        288
+      ],
+      "id": "d5e3de99-7481-4f13-8026-2cf8fddf3777",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -16,
+        288
+      ],
+      "id": "0cd33ece-ab20-4e54-9e7a-e35e1d0b53e7",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "options": {
+          "fileName": "=weekly-report.csv",
+          "headerRow": true
+        }
+      },
+      "id": "26350852-c644-4790-a619-59d2853c3c12",
+      "name": "Convert to CSV",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d86737d4-ad5f-4816-bdcd-e952ac3d2f39",
+              "name": "totalSummaryForAdmin.totalEmployees",
+              "value": "={{ $('Weekly Table Code').item.json.totalSummaryForAdmin.totalEmployees }}",
+              "type": "number"
+            },
+            {
+              "id": "9eac6d5c-2fe5-4ea6-93b4-4d98c4c42eb6",
+              "name": "totalSummaryForAdmin.totalOnTime",
+              "value": "={{ $('Weekly Table Code').item.json.totalSummaryForAdmin.totalOnTime }}",
+              "type": "number"
+            },
+            {
+              "id": "cf3d7eeb-5a13-4a05-8f00-483f5db2d2f2",
+              "name": "totalSummaryForAdmin.totalAbsent",
+              "value": "={{ $('Weekly Table Code').item.json.totalSummaryForAdmin.totalAbsent }}",
+              "type": "number"
+            },
+            {
+              "id": "93fadbd7-a8cb-4416-a6df-668b269f4196",
+              "name": "totalSummaryForAdmin.totalLate",
+              "value": "={{ $('Weekly Table Code').item.json.totalSummaryForAdmin.totalLate }}",
+              "type": "number"
+            },
+            {
+              "id": "1ce15ef9-ef9d-4308-999f-40ad33a55bf1",
+              "name": "totalSummaryForAdmin.totalMissingCheckout",
+              "value": "={{ $('Weekly Table Code').item.json.totalSummaryForAdmin.totalMissingCheckout }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "c390b4eb-24c9-4661-9f7e-68ecddbc2000",
+      "name": "Add Summary to CSV",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2272,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "employeesSummary",
+        "options": {}
+      },
+      "id": "7e4ff6fa-b9f9-4447-8bf2-1d939e43a7d1",
+      "name": "Split Data for CSV",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $json.member }}",
+          "mode": "id"
+        }
+      },
+      "id": "9f94879b-3b42-4f38-ae88-69632bfa5b02",
+      "name": "Get User Info",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        288
+      ],
+      "webhookId": "010aa5fb-47f7-413d-9a29-2ccad9d8d41b",
+      "credentials": {
+        "slackApi": {
+          "id": "s4HKv8JbSd8O2TKx",
+          "name": "Slack Api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "member",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ASZUWGEMP",
+          "mode": "list",
+          "cachedResultName": "daily-report"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        656,
+        288
+      ],
+      "id": "5f304d4d-7b53-4562-901d-accaef34c8b9",
+      "name": "Get members of a channel",
+      "webhookId": "f60f5e31-ef55-4924-a592-35c6a40cfe62",
+      "executeOnce": true,
+      "credentials": {
+        "slackApi": {
+          "id": "s4HKv8JbSd8O2TKx",
+          "name": "Slack Api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ================= USERS TO TRACK =================\nconst trackedUserIds = [\n  \"U0766D9TWSF\", // Yahya Rehman\n  \"U077NT392JZ\", // Muhammad Abdullah\n  \"U08GSRF21RD\", // Imran Farooq\n  \"U08LDDLN2LW\", // Husnain Izhar\n  \"U0A60EPJC9K\", // Awais Gillani\n  \"U0A61S7497G\", // Aimen Aftab\n  \"U0A6QF7SCQK\", // Abdul Wahab\n  \"U0A7074QFFY\", // Nadir Khan\n  \"U0A7R01D9K9\", // Aasfa alam\n  \"U0A9GD2KAKX\",  // Muhammad Ahmad\n  \"U0AUGPG3GNR\", //Abdul Ahad\n];\n\n// ================= HELPERS =================\nfunction parseDateTime(str) {\n  if (!str) return null;\n  const [datePart, timePart] = str.split(',').map(s => s.trim());\n  const [day, month, year] = datePart.split('/');\n  const [hours, minutes, seconds] = timePart.split(':');\n  return new Date(year, month - 1, day, hours, minutes, seconds || 0);\n}\n\nfunction formatAMPM(date) {\n  if (!date) return null;\n  const dd = String(date.getDate()).padStart(2, '0');\n  const mm = String(date.getMonth() + 1).padStart(2, '0');\n  const yyyy = date.getFullYear();\n  let hours = date.getHours();\n  const minutes = String(date.getMinutes()).padStart(2, '0');\n  const ampm = hours >= 12 ? 'PM' : 'AM';\n  hours = hours % 12 || 12;\n  return `${dd}/${mm}/${yyyy}, ${hours}:${minutes} ${ampm}`;\n}\n\nfunction calculateWorkingHours(checkIn, checkOut) {\n  if (!checkIn || !checkOut) return \"0h 0m\";\n  const diffMs = checkOut - checkIn;\n  const totalMinutes = Math.floor(diffMs / (1000 * 60));\n  const hours = Math.floor(totalMinutes / 60);\n  const minutes = totalMinutes % 60;\n  return `${hours}h ${minutes}m`;\n}\n\nfunction formatDate(dateObj) {\n  const dd = String(dateObj.getDate()).padStart(2, '0');\n  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');\n  const yyyy = dateObj.getFullYear();\n  return `${dd}/${mm}/${yyyy}`;\n}\n\n// ================= USER PROFILE MAP =================\nconst userProfiles = $input.all();\nconst userProfileMap = new Map();\n\nfor (const profile of userProfiles) {\n  userProfileMap.set(profile.json.id, profile.json);\n}\n\n// ================= GET RAW RECORDS =================\nlet existingRecords = [];\ntry {\n  existingRecords = $('Group Messages by User').all();\n} catch (e) {\n  existingRecords = [];\n}\n\n// ================= STEP 1: GROUP RECORDS PER USER =================\nconst userDailyMap = new Map();\n\nfor (const record of existingRecords) {\n  if (!record.json || !record.json.userId) continue;\n\n  const { userId, date, checkInTime, checkOutTime, totalBreakDuration } = record.json;\n  if (!trackedUserIds.includes(userId)) continue;\n\n  const checkIn = parseDateTime(checkInTime);\n  const checkOut = parseDateTime(checkOutTime);\n\n  if (!userDailyMap.has(userId)) {\n    userDailyMap.set(userId, []);\n  }\n\n  userDailyMap.get(userId).push({\n    date,\n    checkIn,\n    checkOut,\n    checkInTime,\n    checkOutTime,\n    totalBreakDuration  // ✅ carry real break duration from Group Messages node\n  });\n}\n\n// ================= STEP 2: MERGE SHIFTS =================\nconst recordMap = new Map();\nconst allDates = new Set();\n\nfor (const [userId, records] of userDailyMap.entries()) {\n  for (let i = 0; i < records.length; i++) {\n    const current = records[i];\n\n    let baseDate = current.date;\n    let checkIn = current.checkIn;\n    let checkOut = current.checkOut;\n\n    // CASE 1: Check-in exists but no checkout → find next record's checkout\n    if (checkIn && !checkOut) {\n      const next = records.find(r =>\n        r.checkOut &&\n        new Date(r.checkOut) > checkIn &&\n        (new Date(r.checkOut) - checkIn) <= (1000 * 60 * 60 * 16)\n      );\n      if (next) {\n        checkOut = next.checkOut;\n        current.checkOutTime = next.checkOutTime;\n      }\n    }\n\n    // CASE 2: Checkout exists but no check-in → assign to previous day\n    if (!checkIn && checkOut) {\n      const prev = new Date(checkOut);\n      prev.setDate(prev.getDate() - 1);\n      baseDate = formatDate(prev);\n    }\n\n    const key = `${userId}|${baseDate}`;\n\n    if (!recordMap.has(key)) {\n      recordMap.set(key, {\n        userId,\n        date: baseDate,\n        checkInTime: null,\n        checkOutTime: null,\n        totalBreakDuration: current.totalBreakDuration || \"0h 0m\"  // ✅ use real value on creation\n      });\n    }\n\n    const entry = recordMap.get(key);\n\n    if (checkIn) entry.checkInTime = current.checkInTime;\n    if (checkOut) entry.checkOutTime = current.checkOutTime;\n\n    // ✅ Always update break duration if the current record has a real value\n    if (current.totalBreakDuration && current.totalBreakDuration !== \"0h 0m\") {\n      entry.totalBreakDuration = current.totalBreakDuration;\n    }\n\n    allDates.add(baseDate);\n  }\n}\n\n// ================= SORT DATES =================\nconst sortedDates = [...allDates].sort((a, b) => {\n  const [ad, am, ay] = a.split('/');\n  const [bd, bm, by] = b.split('/');\n  return new Date(ay, am - 1, ad) - new Date(by, bm - 1, bd);\n});\n\n// ================= FINAL OUTPUT =================\nconst result = [];\n\nfor (const date of sortedDates) {\n  for (const userId of trackedUserIds) {\n\n    const userProfile = userProfileMap.get(userId);\n\n    const userName = userProfile\n      ? (userProfile.real_name || userProfile.name)\n      : \"Unknown User\";\n\n    const userRealName = userProfile?.real_name || null;\n    const userDisplayName = userProfile?.profile?.display_name || null;\n\n    const key = `${userId}|${date}`;\n    const existing = recordMap.get(key);\n\n    if (existing) {\n      let checkIn = parseDateTime(existing.checkInTime);\n      let checkOut = parseDateTime(existing.checkOutTime);\n\n      // Final overnight safety\n      if (checkIn && checkOut && checkOut < checkIn) {\n        checkOut.setDate(checkOut.getDate() + 1);\n      }\n\n      result.push({\n        userId,\n        date,\n        checkInTime: formatAMPM(checkIn),\n        checkOutTime: formatAMPM(checkOut),\n        totalWorkingHours: calculateWorkingHours(checkIn, checkOut),\n        userName,\n        userRealName,\n        userDisplayName,\n        totalBreakDuration: existing.totalBreakDuration || \"0h 0m\",  // ✅ real break duration\n        status: (!checkIn && !checkOut) ? \"Absent\" : \"Present\"\n      });\n\n    } else {\n      // ABSENT\n      result.push({\n        userId,\n        date,\n        checkInTime: null,\n        checkOutTime: null,\n        totalWorkingHours: \"0h 0m\",\n        userName,\n        userRealName,\n        userDisplayName,\n        totalBreakDuration: \"0h 0m\",\n        status: \"Absent\"\n      });\n    }\n  }\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        288
+      ],
+      "id": "59433c78-72cd-448a-9f48-a1cf89b1abb5",
+      "name": "Check for Absent and Add Username"
+    },
+    {
+      "parameters": {
+        "jsCode": "const userMessagesByDate = {};\n\n// ================= GROUP MESSAGES =================\nfor (const item of $input.all()) {\n  const userId = item.json.user;\n  const text = (item.json.text || '').toLowerCase();\n  const timestamp = parseFloat(item.json.ts) * 1000;\n  const msgTime = new Date(timestamp);\n\n  // ================= SHIFT ANCHOR FIX =================\n  // Messages before 6 AM belong to the previous day's shift\n  // This handles overnight shifts ending at 1 AM correctly\n  const shiftAnchor = new Date(msgTime.getTime() - (6 * 60 * 60 * 1000));\n  const dateString = shiftAnchor.toLocaleDateString('en-GB', { timeZone: 'Asia/Karachi' });\n\n  if (!userMessagesByDate[userId]) userMessagesByDate[userId] = {};\n  if (!userMessagesByDate[userId][dateString]) userMessagesByDate[userId][dateString] = [];\n\n  userMessagesByDate[userId][dateString].push({\n    text,\n    timestamp: msgTime.getTime()\n  });\n}\n\n// ================= HELPERS =================\nconst formatPKTime = (ts) => {\n  if (!ts) return null;\n  const options = { timeZone: 'Asia/Karachi', hour12: false };\n  return new Date(ts).toLocaleString('en-GB', options);\n};\n\nconst formatDuration = (milliseconds) => {\n  if (!milliseconds || milliseconds <= 0) return '0h 0m';\n  const totalMinutes = Math.floor(milliseconds / 60000);\n  const hours = Math.floor(totalMinutes / 60);\n  const minutes = totalMinutes % 60;\n  return `${hours}h ${minutes}m`;\n};\n\n// ================= MAIN =================\nconst output = [];\n\nfor (const userId in userMessagesByDate) {\n  for (const dateString in userMessagesByDate[userId]) {\n\n    const messages = userMessagesByDate[userId][dateString];\n    messages.sort((a, b) => a.timestamp - b.timestamp);\n\n    let checkIn = null;\n    let checkOut = null;\n\n    const stepOutStepInPairs = [];\n    let currentStepOut = null;\n\n    const allMessages = [];\n\n    for (const msg of messages) {\n      const text = msg.text;\n\n      const isCheckIn =\n        text.includes('check in') ||\n        text.includes('check-in') ||\n        text.includes('checked in') ||\n        text === 'in';\n\n      const isCheckOut =\n        text.includes('check out') ||\n        text.includes('check-out') ||\n        text.includes('checked out') ||\n        text === 'out';\n\n      const isStepOut =\n        text.includes('step out') ||\n        text.includes('step-out') ||\n        text.includes('stepped out');\n\n      const isStepIn =\n        text.includes('step in') ||\n        text.includes('step-in') ||\n        text.includes('stepped in');\n\n      // Track message\n      let messageType = 'unknown';\n      if (isCheckIn) messageType = 'check in';\n      else if (isCheckOut) messageType = 'check out';\n      else if (isStepOut) messageType = 'step out';\n      else if (isStepIn) messageType = 'step in';\n\n      allMessages.push({\n        type: messageType,\n        text,\n        timestamp: formatPKTime(msg.timestamp)\n      });\n\n      // Check-in / Check-out\n      if (isCheckIn && !checkIn) checkIn = msg.timestamp;\n      if (isCheckOut) checkOut = msg.timestamp;\n\n      // Break tracking\n      if (isStepOut && !currentStepOut) {\n        currentStepOut = msg.timestamp;\n      } \n      else if (isStepIn && currentStepOut) {\n        stepOutStepInPairs.push({\n          stepOut: currentStepOut,\n          stepIn: msg.timestamp\n        });\n        currentStepOut = null;\n      }\n    }\n\n    // ================= BREAK LOGIC =================\n\n    let totalBreakDuration = 0;\n\n    // 1. step out → step in (actual break)\n    for (const pair of stepOutStepInPairs) {\n      totalBreakDuration += (pair.stepIn - pair.stepOut);\n    }\n\n    // 2. step out only → +1 hour\n    if (currentStepOut) {\n      const ONE_HOUR = 60 * 60 * 1000;\n      totalBreakDuration += ONE_HOUR;\n    }\n\n    // 3. step in only → ignored automatically\n\n    // ================= WORK HOURS =================\n\n    let totalWorkingHours = null;\n    let workingHoursFormatted = 'N/A';\n\n    if (checkIn) {\n      const effectiveCheckOut = checkOut || messages[messages.length - 1].timestamp;\n\n      totalWorkingHours = (effectiveCheckOut - checkIn) - totalBreakDuration;\n\n      workingHoursFormatted = formatDuration(totalWorkingHours);\n    }\n\n    // ================= STATUS =================\n\n    let status = 'Absent';\n\n    if (checkIn && checkOut) {\n      status = 'Complete';\n    } \n    else if (checkIn && !checkOut) {\n      status = 'Missing Check-out';\n    } \n    else if (!checkIn && checkOut) {\n      status = 'Missing Check-in';\n    }\n\n    // ================= OUTPUT =================\n\n    output.push({\n      json: {\n        userId,\n        date: dateString,\n        checkInTime: formatPKTime(checkIn),\n        checkOutTime: formatPKTime(checkOut),\n        totalWorkingHours: workingHoursFormatted,\n        totalBreakDuration: formatDuration(totalBreakDuration),\n        allMessages,\n        totalMessages: messages.length,\n        status\n      }\n    });\n  }\n}\n\nreturn output;"
+      },
+      "id": "bb4772e0-ab37-4522-9e9e-9e7beaf3a3d3",
+      "name": "Group Messages by User",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Reference words\nconst checkInRef = \"check in\";\nconst checkOutRef = \"check out\";\nconst stepOutRef = \"step out\";\nconst stepInRef = \"step in\";\n\n// Levenshtein similarity function\nfunction similarity(a, b) {\n    const m = a.length, n = b.length;\n    const dp = Array.from({length: m+1}, () => Array(n+1).fill(0));\n\n    for (let i = 0; i <= m; i++) dp[i][0] = i;\n    for (let j = 0; j <= n; j++) dp[0][j] = j;\n\n    for (let i = 1; i <= m; i++) {\n        for (let j = 1; j <= n; j++) {\n            dp[i][j] = Math.min(\n                dp[i - 1][j] + 1,\n                dp[i][j - 1] + 1,\n                dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)\n            );\n        }\n    }\n    return 1 - dp[m][n] / Math.max(m, n);\n}\n\n// Regex for common cases\nconst checkInRegex = /check[- ]?in|checked[- ]?in|checkin/i;\nconst checkOutRegex = /check[- ]?out|checked[- ]?out|checkout/i;\nconst stepOutRegex = /step[- ]?out|stepped[- ]?out|stepout/i;\nconst stepInRegex = /step[- ]?in|stepped[- ]?in|stepin/i;\n\n// Fuzzy threshold\nconst threshold = 0.7;\n\n// Process the input dynamically\nconst results = [];\n\nfor (const item of $input.all()) {\n    if (!item.json || !item.json.text) continue; // skip if no text\n\n    const originalText = item.json.text;\n    const textNormalized = originalText.toLowerCase().replace(/[^a-z ]/g, '');\n\n    if (checkInRegex.test(textNormalized) || similarity(textNormalized, checkInRef) >= threshold) {\n        results.push({ ...item, json: { ...item.json, text: \"check in\" } });\n    } else if (checkOutRegex.test(textNormalized) || similarity(textNormalized, checkOutRef) >= threshold) {\n        results.push({ ...item, json: { ...item.json, text: \"check out\" } });\n    } else if (stepOutRegex.test(textNormalized) || similarity(textNormalized, stepOutRef) >= threshold) {\n        results.push({ ...item, json: { ...item.json, text: \"step out\" } });\n    } else if (stepInRegex.test(textNormalized) || similarity(textNormalized, stepInRef) >= threshold) {\n        results.push({ ...item, json: { ...item.json, text: \"step in\" } });\n    }\n    // else ignore completely\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        288
+      ],
+      "id": "d38d015d-a825-4a9b-a685-6d38b7418712",
+      "name": "Filter Text"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "C0ASZUWGEMP",
+          "initialComment": "=Weekly Attendance Report\n━━━━━━━━━━━━━━━━━━━━━━━\nTotal Employees: {{ $json.totalSummaryForAdmin.totalEmployees }}\nTotal Late Check-ins: {{ $json.totalSummaryForAdmin.totalLate }}\nTotal Missing Check-outs: {{ $json.totalSummaryForAdmin.totalMissingCheckout }}\nTotal Absent:{{ $json.totalSummaryForAdmin.totalAbsent }}"
+        }
+      },
+      "id": "53b4a96d-371c-4490-8bc1-8ed7cd9cb6af",
+      "name": "Send Report to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2496,
+        288
+      ],
+      "webhookId": "ae048fdb-bd4c-45c7-9927-9f891a5f6501",
+      "executeOnce": true,
+      "credentials": {
+        "slackApi": {
+          "id": "s4HKv8JbSd8O2TKx",
+          "name": "Slack Api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "replies",
+        "channelId": {
+          "__rl": true,
+          "value": "C076J8RCBK4",
+          "mode": "list",
+          "cachedResultName": "daily-standup"
+        },
+        "ts": "={{ $json.thread_ts }}",
+        "returnAll": true,
+        "filters": {
+          "latest": "={{ $now }}",
+          "oldest": "={{ $now.minus({ days: 5}) }}"
+        }
+      },
+      "id": "d2c4bdd4-f0d4-42c6-ac17-aa7f72f5c513",
+      "name": "Fetch Weekly Thread Replies",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -240,
+        224
+      ],
+      "webhookId": "8a206001-1b0c-4193-adc5-3be3640df4da",
+      "executeOnce": false,
+      "credentials": {
+        "slackApi": {
+          "id": "s4HKv8JbSd8O2TKx",
+          "name": "Slack Api"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\n// ================= USER SHIFT CONFIG =================\nconst userShifts = {\n  \"U0766D9TWSF\": { start: { h: 16, m: 0 }, end: { h: 1, m: 0 }, lateAfter: 15 }, // Yahya Rehman (4PM–1AM)\n  \"U077NT392JZ\": { start: { h: 16, m: 0 }, end: { h: 1, m: 0 }, lateAfter: 15 },  // Muhammad Abdullah (4PM–1AM)\n  \"U08GSRF21RD\": { start: { h: 16, m: 0 }, end: { h: 1, m: 0 }, lateAfter: 15 },  // Imran Farooq (4PM–1AM)\n  \"U08LDDLN2LW\": { start: { h: 16, m: 0 }, end: { h: 1, m: 0 }, lateAfter: 15 },  // Husnain Izhar (4PM–1AM)\n  \"U0A60EPJC9K\": { start: { h: 13, m: 0 }, end: { h: 22, m: 0 }, lateAfter: 15 }, // Awais Gillani (1PM–10PM)\n  \"U0A61S7497G\": { start: { h: 13, m: 0 }, end: { h: 22, m: 0 }, lateAfter: 15 }, // Aimen Aftab (1PM–10PM)\n  \"U0A6QF7SCQK\": { start: { h: 16, m: 0 }, end: { h: 1, m: 0 }, lateAfter: 15 },  // Abdul Wahab (4PM–1AM)\n  \"U0A7074QFFY\": { start: { h: 16, m: 0 }, end: { h: 1, m: 0 }, lateAfter: 15 },  // Nadir Khan (4PM–1AM)\n  \"U0A7R01D9K9\": { start: { h: 13, m: 0 }, end: { h: 22, m: 0 }, lateAfter: 15 }, // Aasfa Alam (1PM–10PM)\n  \"U0A9GD2KAKX\": { start: { h: 16, m: 0 }, end: { h: 1, m: 0 }, lateAfter: 15 } ,  // Muhammad Ahmad (4PM–1AM)\n  \"U0AUGPG3GNR\": {start: {h:16, m:0}, end: {h:1, m:0} }, //Abdul Ahad\n};\n\n// ================= DEFAULT SHIFT =================\nconst defaultShift = {\n  start: { h: 13, m: 0 },\n  end: { h: 22, m: 0 },\n  lateAfter: 15\n};\n\n// ================= HELPERS =================\nfunction parseTime(str) {\n  const [datePart, timePart] = str.split(', ');\n  const [day, month, year] = datePart.split('/');\n  return new Date(`${month}/${day}/${year}, ${timePart}`);\n}\n\nfunction diffMinutes(start, end) {\n  return Math.round((end - start) / (1000 * 60));\n}\n\n// ================= MAIN LOOP =================\nfor (const item of $input.all()) {\n  const userId = item.json.userId;   // ✅ use userId\n  const userName = item.json.userName;\n  const date = item.json.date;\n  const checkInTime = item.json.checkInTime;\n  let checkOutTime = item.json.checkOutTime;\n  const totalBreakDuration = item.json.totalBreakDuration;\n\n  let status = 'On Time';\n  let workHoursDisplay = '-';\n  let breakDisplay = '-';\n\n  if (!checkInTime) {\n    status = 'Absent';\n  } else {\n    const checkInDate = parseTime(checkInTime);\n    let checkOutDate;\n\n    const checkInMinutes =\n      checkInDate.getHours() * 60 + checkInDate.getMinutes();\n\n    // ================= GET USER SHIFT =================\n    const shift = userShifts[userId] || defaultShift;\n\n    const shiftStartMinutes = shift.start.h * 60 + shift.start.m;\n    const lateThreshold = shiftStartMinutes + shift.lateAfter;\n\n    // ================= STATUS =================\n    if (checkInMinutes >= lateThreshold) {\n      status = 'Late';\n    }\n\n    // ================= CHECKOUT LOGIC =================\n    if (!checkOutTime) {\n      checkOutDate = new Date(checkInDate);\n\n      // Night shift (end < start → next day)\n      if (shift.end.h < shift.start.h) {\n        checkOutDate.setDate(checkOutDate.getDate() + 1);\n      }\n\n      checkOutDate.setHours(shift.end.h, shift.end.m, 0, 0);\n    } else {\n      checkOutDate = parseTime(checkOutTime);\n    }\n\n    // ================= WORK HOURS =================\n    let totalMinutes = diffMinutes(checkInDate, checkOutDate);\n\n    // ================= BREAK CONVERSION =================\n    let breakMinutes = 0;\n\n    if (totalBreakDuration && typeof totalBreakDuration === 'string') {\n      const match = totalBreakDuration.match(/(\\d+)h\\s*(\\d+)m/);\n      if (match) {\n        const h = parseInt(match[1]) || 0;\n        const m = parseInt(match[2]) || 0;\n        breakMinutes = h * 60 + m;\n      }\n    }\n\n    // Subtract break\n    totalMinutes = Math.max(0, totalMinutes - breakMinutes);\n\n    // ================= FORMAT =================\n    const h = Math.floor(totalMinutes / 60);\n    const m = totalMinutes % 60;\n\n    workHoursDisplay = `${h}h ${m}m`;\n\n    if (!totalBreakDuration || totalBreakDuration === '0h 0m') {\n      breakDisplay = 'No Break';\n    } else {\n      breakDisplay = totalBreakDuration;\n    }\n  }\n\n  results.push({\n    json: {\n      Name: userName,\n      Date: date,\n      \"Check-In\": checkInTime || '-',\n      \"Check-Out\": checkOutTime || '-',\n      \"Work Hours\": workHoursDisplay,\n      Break: breakDisplay,\n      Status: status,\n    },\n  });\n}\n\nreturn results;"
+      },
+      "id": "5c3de87a-dbd3-4af1-abf8-93662934bac9",
+      "name": "Calculate Shift and Late Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ================= HELPERS =================\n\nconst messagesBelow7Hours = [\n  \"⚠️ Critical Low\",\n  \"🚨 Very Low\",\n  \"⛔ Low Hours\",\n  \"❗ Urgent Fix\",\n  \"📉 Poor Attendance\"\n];\n\nconst messages7To20Hours = [\n  \"⚠️ Needs Improvement\",\n  \"📉 Below Target\",\n  \"🔧 Improve Hours\",\n  \"⏳ Low Progress\",\n  \"📊 Under Target\"\n];\n\nconst messages20To30Hours = [\n  \"👍 Good Progress\",\n  \"📈 On Track\",\n  \"💪 Keep Going\",\n  \"⚡ Building Momentum\",\n  \"🌟 Decent Effort\"\n];\n\nconst messages30To35Hours = [\n  \"🚀 Almost There\",\n  \"🎯 Near Target\",\n  \"💯 Close Goal\",\n  \"🔥 Strong Effort\",\n  \"⭐ Great Progress\"\n];\n\nconst messages35To40Hours = [\n  \"🏆 Excellent Work\",\n  \"⭐ Top Effort\",\n  \"💎 Nearly Perfect\",\n  \"📈 High Performance\",\n  \"🔥 Outstanding\"\n];\n\nconst messages40PlusHours = [\n  \"🏆 Perfect Week\",\n  \"👑 Elite Performance\",\n  \"💯 Goal Achieved\",\n  \"🚀 Above Target\",\n  \"🌟 Top Performer\"\n];\n\n// ================= HELPERS =================\n\nfunction getRandomMessage(arr, hours, remaining, percentage) {\n  let msg = arr[Math.floor(Math.random() * arr.length)];\n  return msg\n    .replace(\"{hours}\", hours)\n    .replace(\"{remaining}\", remaining)\n    .replace(\"{percentage}\", percentage);\n}\n\nfunction getDayName(dateStr) {\n  if (!dateStr || typeof dateStr !== \"string\") return null;\n\n  const parts = dateStr.split(\"/\");\n  if (parts.length !== 3) return null;\n\n  const [d, m, y] = parts.map(Number);\n  const date = new Date(Date.UTC(y, m - 1, d));\n\n  if (isNaN(date)) return null;\n\n  return date.toLocaleDateString(\"en-US\", { weekday: \"short\" });\n}\n\nfunction extractMinutes(str) {\n  if (!str || str === \"-\" || str === \"No Break\") return 0;\n\n  const h = str.match(/(\\d+)\\s*h/);\n  const m = str.match(/(\\d+)\\s*m/);\n\n  return (h ? +h[1] : 0) * 60 + (m ? +m[1] : 0);\n}\n\n// ================= STATUS =================\n\nfunction normalizeStatus(status, checkOut, minutes) {\n  if (!status || status === \"Absent\") return \"Absent\";\n  if (status === \"Late\" && (!checkOut || checkOut === \"-\")) return \"Late + Missing\";\n  if (!checkOut || checkOut === \"-\") return \"Missing Check-out\";\n  if (minutes === 0) return \"Absent\";\n  if (status === \"Late\") return \"Late\";\n  return \"On Time\";\n}\n\n// ================= CELL FORMAT =================\n\nfunction formatCell(status, h, m) {\n  const total = h * 60 + m;\n  const label = `${h}h ${m}m`;\n\n  if (status === \"Absent\") return \"- (A)\";\n\n  let emoji = \"🟢\";\n  if (total < 420) emoji = \"🔴\";\n  else if (total < 480) emoji = \"🟡\";\n\n  if (status === \"Late\") return `${emoji} ${label} (L)`;\n  if (status === \"Missing Check-out\") return `${emoji} ${label} (M)`;\n  if (status === \"Late + Missing\") return `${emoji} ${label} (L,M)`;\n\n  return `${emoji} ${label}`;\n}\n\nfunction formatHours(min) {\n  return `${Math.floor(min / 60)}h ${min % 60}m`;\n}\n\n// ================= MAIN =================\n\nconst table = {};\nconst days = [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\"];\n\nlet totalEmployees = new Set();\nlet totalLate = 0;\nlet totalOnTime = 0;\nlet totalMissingCheckout = 0;\nlet totalAbsent = 0;\n\nfor (const item of $input.all()) {\n  const d = item.json;\n\n  const name = d.Name;\n  const date = d.Date;\n  const statusRaw = d.Status;\n  const checkIn = d[\"Check-In\"];\n  const checkOut = d[\"Check-Out\"];\n  const work = d[\"Work Hours\"];\n\n  if (!name) continue;\n\n  totalEmployees.add(name);\n\n  const minutes = extractMinutes(work);\n  const h = Math.floor(minutes / 60);\n  const m = minutes % 60;\n\n  const day = getDayName(date);\n  if (!day) continue;\n\n  const status = normalizeStatus(statusRaw, checkOut, minutes);\n  const cell = formatCell(status, h, m);\n\n  if (!table[name]) {\n    table[name] = {\n      Employee: name,\n      Mon: \"\",\n      Tue: \"\",\n      Wed: \"\",\n      Thu: \"\",\n      Fri: \"\",\n      totalMinutes: 0\n    };\n  }\n\n  const prev = table[name][day + \"_min\"] || 0;\n\n  table[name].totalMinutes =\n    (table[name].totalMinutes || 0) - prev + minutes;\n\n  table[name][day] = cell;\n  table[name][day + \"_min\"] = minutes;\n\n  // ================= COUNTERS =================\n\n  if (status === \"Late\") totalLate++;\n  if (status === \"On Time\") totalOnTime++;\n  if (status === \"Absent\") totalAbsent++;\n\n  const hasCheckIn = checkIn && checkIn !== \"-\";\n  const hasCheckOut = checkOut && checkOut !== \"-\";\n\n  if (hasCheckIn && !hasCheckOut) {\n    totalMissingCheckout++;\n  }\n}\n\n// ================= FILL MISSING DAYS =================\n\nfor (const name in table) {\n  for (const d of days) {\n    if (!table[name][d]) {\n      table[name][d] = \"- (A)\";\n    }\n  }\n}\n\n// ================= SUMMARY =================\n\nconst employeesSummary = Object.values(table).map(row => {\n  const totalMin = row.totalMinutes || 0;\n  const weekly = totalMin / 60;\n\n  const remaining = (40 - weekly).toFixed(1);\n  const percent = ((weekly / 40) * 100).toFixed(0);\n\n  let msg = \"\";\n\n  if (weekly < 7)\n    msg = getRandomMessage(messagesBelow7Hours, weekly.toFixed(1), remaining, percent);\n  else if (weekly < 20)\n    msg = getRandomMessage(messages7To20Hours, weekly.toFixed(1), remaining, percent);\n  else if (weekly < 30)\n    msg = getRandomMessage(messages20To30Hours, weekly.toFixed(1), remaining, percent);\n  else if (weekly < 35)\n    msg = getRandomMessage(messages30To35Hours, weekly.toFixed(1), remaining, percent);\n  else if (weekly < 40)\n    msg = getRandomMessage(messages35To40Hours, weekly.toFixed(1), remaining, percent);\n  else\n    msg = getRandomMessage(messages40PlusHours, weekly.toFixed(1), remaining, percent);\n\n  const {\n    totalMinutes,\n    Mon_min,\n    Tue_min,\n    Wed_min,\n    Thu_min,\n    Fri_min,\n    ...clean\n  } = row;\n\n  return {\n    ...clean,\n    totalHours: formatHours(totalMin),\n    messageToSend: msg\n  };\n});\n\n// ================= FINAL OUTPUT =================\n\nreturn [\n  {\n    json: {\n      employeesSummary,\n      totalSummaryForAdmin: {\n        totalEmployees: totalEmployees.size,\n        totalLate,\n        totalOnTime,\n        totalMissingCheckout,\n        totalAbsent\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        288
+      ],
+      "id": "31e0797d-2980-41aa-a9ed-55083577733a",
+      "name": "Weekly Table Code"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ASZUWGEMP",
+          "mode": "list",
+          "cachedResultName": "daily-report"
+        },
+        "messageType": "block",
+        "blocksUi": "{\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"• *(M)* → Missing Check-Out\\n• *(L)* → Late\\n• *(A)* → Absent\"\n      }\n    }\n  ]\n}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "12625b6b-a1a1-4f77-85dd-e804bbebc3bd",
+      "name": "Send Report to Slack1",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2896,
+        288
+      ],
+      "webhookId": "ae048fdb-bd4c-45c7-9927-9f891a5f6501",
+      "executeOnce": true,
+      "credentials": {
+        "slackApi": {
+          "id": "s4HKv8JbSd8O2TKx",
+          "name": "Slack Api"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2720,
+        288
+      ],
+      "id": "b6ae02f5-6255-47c5-9cff-025c88a79154",
+      "name": "Wait",
+      "webhookId": "73673510-69aa-439d-8d74-3240bf5d273f"
+    }
+  ],
+  "pinData": {
+    "Weekly Report Schedule": [
+      {
+        "json": {
+          "timestamp": "2026-04-25T08:00:42.006+05:00",
+          "Readable date": "April 25th 2026, 8:00:42 am",
+          "Readable time": "8:00:42 am",
+          "Day of week": "Saturday",
+          "Year": "2026",
+          "Month": "April",
+          "Day of month": "25",
+          "Hour": "08",
+          "Minute": "00",
+          "Second": "42",
+          "Timezone": "Asia/Karachi (UTC+05:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Weekly Report Schedule": {
+      "main": [
+        [
+          {
+            "node": "Mark as Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Weekly Messages": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Fetch Weekly Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Fetch Weekly Thread Replies",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Filter Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to CSV": {
+      "main": [
+        [
+          {
+            "node": "Add Summary to CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Summary to CSV": {
+      "main": [
+        [
+          {
+            "node": "Send Report to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Data for CSV": {
+      "main": [
+        [
+          {
+            "node": "Convert to CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User Info": {
+      "main": [
+        [
+          {
+            "node": "Check for Absent and Add Username",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get members of a channel": {
+      "main": [
+        [
+          {
+            "node": "Get User Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Absent and Add Username": {
+      "main": [
+        [
+          {
+            "node": "Calculate Shift and Late Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group Messages by User": {
+      "main": [
+        [
+          {
+            "node": "Get members of a channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Text": {
+      "main": [
+        [
+          {
+            "node": "Group Messages by User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Weekly Thread Replies": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Shift and Late Status": {
+      "main": [
+        [
+          {
+            "node": "Weekly Table Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Report to Slack": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Table Code": {
+      "main": [
+        [
+          {
+            "node": "Split Data for CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send Report to Slack1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "833feb66-6788-406d-b03b-b423fd7872c4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14a25d024c1565cfe1bcf30ba5b4eb223be398373f316fda5e3d6ec89f3d3640"
+  },
+  "id": "FsiYw5vTo2xjy6Sw",
+  "tags": []
+}
